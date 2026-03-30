@@ -1,41 +1,113 @@
-const generateExtension = require("../services/llmService");
-const validateJSON = require("../utils/jsonValidator");
+const fs = require("fs");
+const path = require("path");
+const archiver = require("archiver");
+const { v4: uuidv4 } = require("uuid");
 
 const generateCode = async (req, res) => {
+
+  console.log("🔥 Generate route hit");
+
   try {
-    const { prompt } = req.body;
 
-    if (!prompt) {
-      return res.status(400).json({
-        error: "Prompt is required",
+    const projectId = uuidv4();
+
+    console.log("Project ID:", projectId);
+
+    const baseDir = path.join(
+      __dirname,
+      "..",
+      "tmp",
+      projectId
+    );
+
+    console.log("BaseDir:", baseDir);
+
+    /* Create folder */
+
+    fs.mkdirSync(baseDir, { recursive: true });
+
+    console.log("📁 Folder created");
+
+    /* Write manifest */
+
+    const manifestPath =
+      path.join(baseDir, "manifest.json");
+
+      fs.writeFileSync(
+        manifestPath,
+        JSON.stringify({
+          manifest_version: 3,
+          name: "Test Extension",
+          version: "1.0",
+      
+          action: {
+            default_popup: "popup.html"
+          }
+      
+        }, null, 2)
+      );
+
+    console.log("📄 manifest.json written");
+
+    /* Write popup */
+
+    const popupPath =
+      path.join(baseDir, "popup.html");
+
+    fs.writeFileSync(
+      popupPath,
+      "<h1>Hello Extensio.ai 🚀</h1>"
+    );
+
+    console.log("📄 popup.html written");
+
+    /* Create ZIP */
+
+    const zipPath = path.join(
+      __dirname,
+      "..",
+      "tmp",
+      projectId + ".zip"
+    );
+
+    console.log("ZIP path:", zipPath);
+
+    const output =
+      fs.createWriteStream(zipPath);
+
+    const archive =
+      archiver("zip", {
+        zlib: { level: 9 }
       });
-    }
 
-    const rawOutput = await generateExtension(prompt);
+    archive.pipe(output);
 
-    let parsed;
+    archive.directory(baseDir, false);
 
-    try {
-      parsed = JSON.parse(rawOutput);
-    } catch (err) {
-      return res.status(500).json({
-        error: "Invalid JSON from LLM",
-        raw: rawOutput,
-      });
-    }
+    archive.finalize();
 
-    validateJSON(parsed);
+    output.on("close", () => {
 
-    res.json({
-      success: true,
-      data: parsed,
+      console.log(
+        "✅ ZIP finished:",
+        archive.pointer(),
+        "bytes"
+      );
+
+      res.download(zipPath);
+
     });
 
   } catch (error) {
+
+    console.error("❌ FULL ERROR:", error);
+
     res.status(500).json({
-      error: error.message,
+      error: error.message
     });
+
   }
+
 };
 
 module.exports = generateCode;

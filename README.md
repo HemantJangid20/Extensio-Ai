@@ -36,7 +36,7 @@ This version includes:
 ✅ OpenAI Integration  
 ✅ JSON Output Validation  
 ✅ Extension File Structure Generator  
-✅ API Endpoint for Code Generation  
+✅ API Endpoint for Code Generation
 
 ---
 
@@ -57,6 +57,7 @@ This version includes:
 ---
 
 # 🗂️ Project Structure
+
 Extensio-AI/
 │
 ├── backend/
@@ -73,7 +74,6 @@ Extensio-AI/
 │ └── package.json
 │
 └── README.md
-
 
 ---
 
@@ -131,3 +131,4 @@ Security Hardening
 Hemant Jangid
 Software Developer
 Extensio.ai Team
+```
