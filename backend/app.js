@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* ✅ Serve tmp folder (IMPORTANT for zip download) */
+/*  Serve tmp folder (IMPORTANT for zip download) */
 
 app.use(
   "/tmp",
