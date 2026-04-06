@@ -1,78 +1,138 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import API from "./services/api";
+import "./App.css";
 
 function App() {
-  const [prompt, setPrompt] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleGenerate = async () => {
-    console.log("Button Clicked"); // DEBUG
+  const navigate = useNavigate();   // ✅ Added navigation
 
-    if (!prompt) {
-      alert("Enter prompt first");
-      return;
-    }
+  const [prompt, setPrompt] =
+    useState("");
 
-    try {
-      setLoading(true);
+  const [loading, setLoading] =
+    useState(false);
 
-      console.log("Sending request...");
+  const handleGenerate =
+    async () => {
 
-      const response = await API.post(
-        "/generate",
-        { prompt },
-        { responseType: "blob" }
-      );
+      if (!prompt) return;
 
-      console.log("Response received");
+      try {
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+        setLoading(true);
 
-      const link = document.createElement("a");
+        const response =
+          await API.post(
+            "/generate",
+            { prompt },
+            {
+              responseType: "blob"
+            }
+          );
 
-      link.href = url;
+        const blob =
+          new Blob([response.data]);
 
-      link.setAttribute("download", "extension.zip");
+        const url =
+          window.URL.createObjectURL(blob);
 
-      document.body.appendChild(link);
+        const link =
+          document.createElement("a");
 
-      link.click();
-    } catch (error) {
-      console.error("Error:", error);
+        link.href = url;
+        link.download = "extension.zip";
 
-      alert("Extension generation failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+        link.click();
+
+      } catch (error) {
+
+        console.error(error);
+
+        alert(
+          "Extension generation failed"
+        );
+
+      } finally {
+
+        setLoading(false);
+
+      }
+
+    };
 
   return (
-    <div
-      style={{
-        padding: "20px",
-        fontFamily: "Arial",
-      }}
-    >
-      <h1>🚀 Extensio.ai</h1>
 
-      <h2>No-Code Extension Factory</h2>
+<div className="app">
 
-      <textarea
-        rows="6"
-        cols="60"
-        placeholder="Enter your extension request..."
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-      />
+{/* Floating Blobs */}
 
-      <br />
-      <br />
+<div className="blob blob1"></div>
+<div className="blob blob2"></div>
 
-      <button onClick={handleGenerate}>
-        {loading ? "Generating..." : "Generate Extension"}
-      </button>
-    </div>
+{/* Main Card */}
+
+<div className="card">
+
+<h1 className="title">
+
+Extensio.ai 🚀
+
+</h1>
+
+<p className="subtitle">
+
+Turn ideas into Chrome extensions instantly
+
+</p>
+
+<textarea
+
+className="textarea"
+
+placeholder="Try: Block all images on websites..."
+
+value={prompt}
+
+onChange={(e) =>
+  setPrompt(e.target.value)
+}
+
+/>
+
+<button
+
+onClick={handleGenerate}
+
+disabled={loading}
+
+className="btn"
+
+>
+
+{loading
+? "Generating magic..."
+: "Generate Extension ⚡"}
+
+</button>
+
+{/* ✅ New Button Added */}
+
+<button
+onClick={() => navigate("/projects")}
+className="btn"
+>
+
+View Projects 📦
+
+</button>
+
+</div>
+
+</div>
+
   );
+
 }
 
 export default App;

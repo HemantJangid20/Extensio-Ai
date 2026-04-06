@@ -1,3 +1,6 @@
+const Project =
+require("../models/Project");
+
 const fs = require("fs");
 const path = require("path");
 const archiver = require("archiver");
@@ -86,15 +89,34 @@ const generateCode = async (req, res) => {
 
     archive.finalize();
 
-    output.on("close", () => {
-
+    output.on("close", async () => {
       console.log(
         "✅ ZIP finished:",
         archive.pointer(),
         "bytes"
       );
 
-      res.download(zipPath);
+      /* Save project to MongoDB */
+
+const newProject =
+await Project.create({
+
+  name: "Generated Extension",
+
+  prompt: req.body.prompt,
+
+  zipPath: zipPath
+
+});
+
+console.log(
+  "💾 Project saved:",
+  newProject._id
+);
+
+/* Send ZIP */
+
+res.download(zipPath);
 
     });
 
