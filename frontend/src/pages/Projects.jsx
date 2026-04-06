@@ -56,7 +56,7 @@ function Projects() {
 
 <h1 className="projects-title">
 
-Your Extensions 📦
+Your Extension 📦
 
 </h1>
 
