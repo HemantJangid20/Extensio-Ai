@@ -101,7 +101,7 @@ const generateCode = async (req, res) => {
 const newProject =
 await Project.create({
 
-  name: "Generated Extensions",
+  name: "Generated Extension",
 
   prompt: req.body.prompt,
 
