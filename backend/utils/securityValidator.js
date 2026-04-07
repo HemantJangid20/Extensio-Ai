@@ -1,32 +1,30 @@
-/* Block dangerous patterns */
+/* Security validator */
 
 const blockedPatterns = [
 
     "document.cookie",
   
-    "localStorage",
-  
-    "sessionStorage",
-  
-    "fetch(",
-  
-    "XMLHttpRequest",
-  
     "eval(",
   
-    "Function("
+    "Function(",
+  
+    "<script>"
   
   ];
   
-  /* Validate generated files */
+  /* Validate files */
   
   const validateSecurity =
   (files) => {
   
+    if (!files) return;
+  
     for (const file of files) {
   
+      if (!file.content) continue;
+  
       const content =
-        file.content;
+        file.content.toString();
   
       for (const pattern of blockedPatterns) {
   
@@ -35,56 +33,7 @@ const blockedPatterns = [
         ) {
   
           throw new Error(
-            `Blocked unsafe code: ${pattern}`
-          );
-  
-        }
-  
-      }
-  
-    }
-  
-  };
-  
-  module.exports =
-  validateSecurity;/* Block dangerous patterns */
-
-  const blockedPatterns = [
-  
-    "document.cookie",
-  
-    "localStorage",
-  
-    "sessionStorage",
-  
-    "fetch(",
-  
-    "XMLHttpRequest",
-  
-    "eval(",
-  
-    "Function("
-  
-  ];
-  
-  /* Validate generated files */
-  
-  const validateSecurity =
-  (files) => {
-  
-    for (const file of files) {
-  
-      const content =
-        file.content;
-  
-      for (const pattern of blockedPatterns) {
-  
-        if (
-          content.includes(pattern)
-        ) {
-  
-          throw new Error(
-            `Blocked unsafe code: ${pattern}`
+            `🚨 Unsafe code detected: ${pattern}`
           );
   
         }

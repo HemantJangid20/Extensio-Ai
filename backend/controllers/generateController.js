@@ -7,7 +7,6 @@ require("../models/Project");
 const fs = require("fs");
 const path = require("path");
 const archiver = require("archiver");
-const { v4: uuidv4 } = require("uuid");
 
 /* ✅ Prompt Sanitizer */
 
@@ -43,26 +42,24 @@ const generateCode = async (req, res) => {
 
     }
 
-    /* ✅ Security Validation */
+    /* ✅ Security Validation FIXED */
 
-    const isSafe =
-      validateSecurity(
-        sanitizedPrompt
-      );
+    validateSecurity([
+      { content: sanitizedPrompt }
+    ]);
 
-    if (!isSafe) {
+    /* Count existing projects */
 
-      return res.status(400).json({
-        error: "Unsafe content detected"
-      });
+    const count =
+      await Project.countDocuments();
 
-    }
+    /* Create readable name */
 
-    /* Generate Project ID */
+    const projectName =
+      `extension${count + 1}`;
 
-    const projectId = uuidv4();
-
-    console.log("Project ID:", projectId);
+    const projectId =
+      projectName;
 
     /* Create Base Folder */
 
@@ -148,7 +145,7 @@ const generateCode = async (req, res) => {
       const newProject =
       await Project.create({
 
-        name: "Generated Extension",
+        name: projectName,
 
         prompt: sanitizedPrompt,
 
@@ -165,41 +162,7 @@ const generateCode = async (req, res) => {
 
       res.download(
         zipPath,
-        "extension.zip",
-        (err) => {
-
-          if (err) {
-
-            console.error(
-              "Download error:",
-              err
-            );
-
-          }
-
-          /* 🧹 Cleanup */
-
-          try {
-
-            fs.rmSync(
-              baseDir,
-              { recursive: true, force: true }
-            );
-
-            console.log(
-              "🧹 Temp folder deleted"
-            );
-
-          } catch (cleanupError) {
-
-            console.error(
-              "Cleanup error:",
-              cleanupError
-            );
-
-          }
-
-        }
+        "extension.zip"
       );
 
     });
