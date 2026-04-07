@@ -1,12 +1,22 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+
+const helmet =
+require("helmet");
+
 const rateLimit =
 require("express-rate-limit");
 
 const app = express();
 
-/* ✅ Rate Limiter Setup */
+/* ✅ Security Middlewares */
+
+/* Helmet for secure headers */
+
+app.use(helmet());
+
+/* Rate Limiter */
 
 const limiter =
 rateLimit({
@@ -14,7 +24,7 @@ rateLimit({
   windowMs:
     15 * 60 * 1000, // 15 minutes
 
-  max: 100, // limit each IP to 100 requests
+  max: 100,
 
   message: {
     error:
@@ -23,14 +33,12 @@ rateLimit({
 
 });
 
-/* Middlewares */
+app.use(limiter);
+
+/* Standard Middlewares */
 
 app.use(cors());
 app.use(express.json());
-
-/* ✅ Apply Rate Limiter */
-
-app.use(limiter);
 
 /* ✅ Serve tmp folder */
 
